@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -11,15 +12,22 @@ public class Main {
 //        printSleepMessage("Initializing deck...", 1500);
 
     // Standard deck
+//        printSleepMessage("Initializing deck...", 1000);
         initializeCards("Spades", "Card Images/Spades");
         initializeCards("Hearts", "Card Images/Hearts");
         initializeCards("Clubs", "Card Images/Clubs");
 //        initializeCards("Diamonds", "Card Images/Diamonds");
+//        printSleepMessage("Deck created.", 500);
+
+//        printSleepMessage("Initializing chips...", 1000);
+//        printSleepMessage("Chips created.", 500);
+
+//        funnyThread(); //Comment this out to run the thing faster :)
 
 //        printSleepMessage("Running simulation...", 1500);
 
         jfrm.setSize(640, 480);
-        jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jfrm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jfrm.setLocationRelativeTo(null);
         jfrm.setLayout(new CardLayout());
 
@@ -48,6 +56,20 @@ public class Main {
         startPanel.add(Box.createRigidArea(new Dimension(0, 100)));
         startPanel.add(newGame);
 
+        newGame.addActionListener(ae -> {
+            jfrm.dispatchEvent(new WindowEvent(jfrm, WindowEvent.WINDOW_CLOSING));
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                Game game = new Game(deck);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         jfrm.add(startPanel);
         jfrm.setVisible(true);
 
@@ -56,7 +78,7 @@ public class Main {
     }
 
     public static void printSleepMessage(String message, int sleepDuration) throws InterruptedException {
-        System.out.println(message);
+        System.out.println("> " + message);
         Thread.sleep(sleepDuration);
     }
 
@@ -91,6 +113,15 @@ public class Main {
         deck.add(of3);
         deck.add(of2);
         deck.add(ace);
+    }
+
+    public static void funnyThread() throws InterruptedException {
+        System.out.println();
+        printSleepMessage("Fetching credentials...", 2000);
+        printSleepMessage("Identity validated.", 1000);
+        System.out.println();
+        printSleepMessage("Performing background check...", 2000);
+        printSleepMessage("No criminal history detected. Access granted.", 1000);
     }
 }
 

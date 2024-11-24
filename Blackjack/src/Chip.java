@@ -4,39 +4,32 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class Card {
-    String rank;
-    String suit;
+public class Chip {
+//    String writtenValue;
     int value;
     Image picture;
     JLabel pictureAsset;
 
-    Card(String rank, String suit, int value, String imagePath) throws IOException {
-        this.rank = rank;
-        this.suit = suit;
+    Chip(int value, Image picture) {
         this.value = value;
+//        writtenValue = "$" + value;
+        this.picture = picture;
 
-        picture = ImageIO.read(new File(imagePath));
         Image scaled = picture.getScaledInstance(100, 140, Image.SCALE_DEFAULT);
         ImageIcon icon = new ImageIcon(scaled);
         pictureAsset = new JLabel(icon);
     }
 
-    public void setValue(int val) {
-        value = val;
-    }
-    public String getRank() {
-        return rank;
-    }
-    public String getSuit() {
-        return suit;
-    }
+//    public String getWrittenValue() {
+//        return writtenValue;
+//    }
     public int getValue() {
         return value;
     }
     public Image getPicture() {
         return picture;
     }
-    public JLabel getPictureAsset() { return pictureAsset; }
-
+    public JLabel getPictureAsset() {
+        return pictureAsset;
+    }
 }
