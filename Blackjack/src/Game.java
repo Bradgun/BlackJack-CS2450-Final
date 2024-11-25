@@ -56,6 +56,7 @@ public class Game {
 
     int walletAmount = 2500;
     int betAmount = 0;
+    Random random = new Random();
 
     JFrame jfrm = new JFrame("Mack's Sidetrack Blackjack");
     CardLayout card = new CardLayout();
@@ -63,6 +64,8 @@ public class Game {
 
     Game(ArrayList<Card> givenDeck) throws IOException {
         deck.addAll(givenDeck);
+//        Collections.shuffle(deck);    //Shuffle unnecessary as we're already drawing at random
+
         chips.add(chip1);
         chips.add(chip10);
         chips.add(chip100);
@@ -84,21 +87,44 @@ public class Game {
     }
 
     private JPanel dealPanel() throws IOException {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+
         JPanel dealScreen = new JPanel();
         dealScreen.setLayout(new BoxLayout(dealScreen, BoxLayout.Y_AXIS));
 
-        JPanel header = new JPanel();
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        JPanel header = new JPanel();   //Orients header content to top-left
+        header.setLayout(new BorderLayout());
+        JPanel headerMini = new JPanel();
+        headerMini.setLayout(new BoxLayout(headerMini, BoxLayout.Y_AXIS));
+
+        //FIXME: Wallet and bet text of this screen won't update because it needs to be able to refresh content when placing a bet on the other screen
         JLabel walletText = new JLabel("Wallet: $" + walletAmount);
         JLabel betText = new JLabel("Bet: $" + betAmount);
-        header.add(walletText);
-        header.add(betText);
+        walletText.setFont(new Font("Wallet", Font.BOLD, 18));
+        betText.setFont(new Font("Bet", Font.BOLD, 18));
+        headerMini.add(walletText);
+        headerMini.add(betText);
+        header.add(headerMini, BorderLayout.WEST);
 
         JPanel dealerHand = new JPanel();
+        dealerHand.setLayout(new BoxLayout(dealerHand, BoxLayout.X_AXIS));
         ArrayList<Card> dealerCards = new ArrayList<>();
         ArrayList<JLabel> dealerCardsVisual = new ArrayList<>();
+        int randomIndex = random.nextInt(deck.size() - 1);  // Cannot draw last card in deck, which is the back of a card
+        dealerCards.add(deck.get(randomIndex));
+        dealerCardsVisual.add(deck.get(randomIndex).getPictureAsset());
+        dealerCards.add(deck.getLast());    // Second card dealer draws is drawn face-down
+        dealerCardsVisual.add(deck.getLast().getPictureAsset());
+        for (int i = 0 ; i < dealerCardsVisual.size(); i++) {
+            dealerHand.add(dealerCardsVisual.get(i));
+            if (i != dealerCardsVisual.size() - 1) {
+                dealerHand.add(Box.createRigidArea(new Dimension(20 ,0)));
+            }
+        }
 
         JPanel buttonRow = new JPanel();
+        buttonRow.setLayout(new BoxLayout(buttonRow, BoxLayout.X_AXIS));
         hitButton.addActionListener(e -> {
 
         });
@@ -114,21 +140,45 @@ public class Game {
         doubleDownButton.addActionListener(e -> {
 
         });
+        hitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        standButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        splitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        doubleDownButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonRow.add(hitButton);
+        buttonRow.add(Box.createRigidArea(new Dimension(20, 0)));
         buttonRow.add(standButton);
-        buttonRow.add(splitButton);
-        buttonRow.add(doubleDownButton);
+
+//        buttonRow.add(splitButton);   //FIXME: Uncomment when fully implemented
+//        buttonRow.add(doubleDownButton);
 
         JPanel playerHand = new JPanel();
         ArrayList<Card> playerCards = new ArrayList<>();
         ArrayList<JLabel> playerCardsVisual = new ArrayList<>();
+        playerHand.setLayout(new BoxLayout(playerHand, BoxLayout.X_AXIS));
+        randomIndex = random.nextInt(deck.size() - 1);  // Cannot draw last card in deck, which is the back of a card
+        playerCards.add(deck.get(randomIndex));
+        playerCardsVisual.add(deck.get(randomIndex).getPictureAsset());
+        randomIndex = random.nextInt(deck.size() - 1);
+        playerCards.add(deck.get(randomIndex));
+        playerCardsVisual.add(deck.get(randomIndex).getPictureAsset());
 
-        dealScreen.add(header);
+        for (int i = 0 ; i < playerCardsVisual.size(); i++) {
+            playerHand.add(playerCardsVisual.get(i));
+            if (i != playerCardsVisual.size() - 1) {
+                playerHand.add(Box.createRigidArea(new Dimension(20 ,0)));
+            }
+        }
+
+        mainPanel.add(header, BorderLayout.NORTH);
+        dealScreen.add(Box.createRigidArea(new Dimension(0, 50)));
         dealScreen.add(dealerHand);
+        dealScreen.add(Box.createRigidArea(new Dimension(0, 20)));
         dealScreen.add(buttonRow);
+        dealScreen.add(Box.createRigidArea(new Dimension(0, 20)));
         dealScreen.add(playerHand);
+        mainPanel.add(dealScreen, BorderLayout.CENTER);
 
-        return dealScreen;
+        return mainPanel;
     }
 
     private JPanel betPanel() throws IOException {

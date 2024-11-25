@@ -17,6 +17,7 @@ public class Main {
         initializeCards("Hearts", "Card Images/Hearts");
         initializeCards("Clubs", "Card Images/Clubs");
 //        initializeCards("Diamonds", "Card Images/Diamonds");
+        deck.add(new Card("Back", "None", 0, "Card Images/Misc/cardBack.png")); // Add back of card sprite
 //        printSleepMessage("Deck created.", 500);
 
 //        printSleepMessage("Initializing chips...", 1000);
@@ -72,9 +73,6 @@ public class Main {
 
         jfrm.add(startPanel);
         jfrm.setVisible(true);
-
-
-//        Game game = new Game(deck);
     }
 
     public static void printSleepMessage(String message, int sleepDuration) throws InterruptedException {
