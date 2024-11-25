@@ -18,7 +18,7 @@ public class Game {
     ArrayList<Chip> chips = new ArrayList<>();
     ArrayList<JLabel> chipsVisual = new ArrayList<>();
 
-    Color casinoGreen = new Color(0, 210, 0);
+//    Color casinoGreen = new Color(0, 210, 0);
 
     Image chipSprite1 = ImageIO.read(new File("Chip Images/chip1.png"));
     Image chipSprite10 = ImageIO.read(new File("Chip Images/chip10.png"));
@@ -48,8 +48,8 @@ public class Game {
     Chip chip1000 = new Chip(1000, chipSprite1000);
     Chip chip5000 = new Chip(5000, chipSprite5000);
 
-    ArrayList<Card> dealerHand = new ArrayList<>();
-    ArrayList<Card> playerHand = new ArrayList<>();
+//    ArrayList<Card> dealerHand = new ArrayList<>();
+//    ArrayList<Card> playerHand = new ArrayList<>();
 
     ArrayList<JLabel> dealerHandVisual = new ArrayList<>();
     ArrayList<JLabel> playerHandVisual = new ArrayList<>();
@@ -58,6 +58,8 @@ public class Game {
     int betAmount = 0;
 
     JFrame jfrm = new JFrame("Mack's Sidetrack Blackjack");
+    CardLayout card = new CardLayout();
+    JPanel mainPanel = new JPanel(card);
 
     Game(ArrayList<Card> givenDeck) throws IOException {
         deck.addAll(givenDeck);
@@ -72,10 +74,8 @@ public class Game {
         jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jfrm.setLocationRelativeTo(null);
 
-        CardLayout card = new CardLayout();
-        JPanel mainPanel = new JPanel(card);
-
         mainPanel.add(betPanel(), "Bet Panel");
+        mainPanel.add(dealPanel(), "Deal Panel");
 
         card.show(mainPanel, "Bet Panel");
 
@@ -83,13 +83,61 @@ public class Game {
         jfrm.setVisible(true);
     }
 
+    private JPanel dealPanel() throws IOException {
+        JPanel dealScreen = new JPanel();
+        dealScreen.setLayout(new BoxLayout(dealScreen, BoxLayout.Y_AXIS));
+
+        JPanel header = new JPanel();
+        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        JLabel walletText = new JLabel("Wallet: $" + walletAmount);
+        JLabel betText = new JLabel("Bet: $" + betAmount);
+        header.add(walletText);
+        header.add(betText);
+
+        JPanel dealerHand = new JPanel();
+        ArrayList<Card> dealerCards = new ArrayList<>();
+        ArrayList<JLabel> dealerCardsVisual = new ArrayList<>();
+
+        JPanel buttonRow = new JPanel();
+        hitButton.addActionListener(e -> {
+
+        });
+        standButton.addActionListener(e -> {
+
+        });
+
+        splitButton.setVisible(false);
+        splitButton.addActionListener(e -> {
+
+        });
+        doubleDownButton.setVisible(false);
+        doubleDownButton.addActionListener(e -> {
+
+        });
+        buttonRow.add(hitButton);
+        buttonRow.add(standButton);
+        buttonRow.add(splitButton);
+        buttonRow.add(doubleDownButton);
+
+        JPanel playerHand = new JPanel();
+        ArrayList<Card> playerCards = new ArrayList<>();
+        ArrayList<JLabel> playerCardsVisual = new ArrayList<>();
+
+        dealScreen.add(header);
+        dealScreen.add(dealerHand);
+        dealScreen.add(buttonRow);
+        dealScreen.add(playerHand);
+
+        return dealScreen;
+    }
+
     private JPanel betPanel() throws IOException {
         JPanel betScreen = new JPanel();
         betScreen.setLayout(new BoxLayout(betScreen, BoxLayout.Y_AXIS)); //Rows of panels
-        betScreen.setBackground(casinoGreen); //Temporary, change later
+//        betScreen.setBackground(casinoGreen); //Temporary, change later
 
         JPanel header = new JPanel();
-        header.setBackground(casinoGreen);
+//        header.setBackground(casinoGreen);
 //        header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
         JLabel walletText = new JLabel("Wallet: $" + walletAmount);
         walletText.setFont(new Font("Wallet", Font.BOLD, 36));
@@ -97,7 +145,7 @@ public class Game {
         header.add(walletText);
 
         JPanel betValueLine = new JPanel();
-        betValueLine.setBackground(casinoGreen);
+//        betValueLine.setBackground(casinoGreen);
         betValueLine.setLayout(new BoxLayout(betValueLine, BoxLayout.Y_AXIS));
         JLabel totalBetText = new JLabel("Total Bet:");
         JLabel betAmountText = new JLabel("$" + betAmount);
@@ -109,7 +157,7 @@ public class Game {
         betValueLine.add(betAmountText);
 
         JPanel removeChipsButtonRow = new JPanel();
-        removeChipsButtonRow.setBackground(casinoGreen);
+//        removeChipsButtonRow.setBackground(casinoGreen);
         removeChipsButtonRow.setLayout(new BoxLayout(removeChipsButtonRow, BoxLayout.X_AXIS));
         for (int i = chips.size() - 1; i >= 0; i--) {
             JButton removeChipButton = new JButton("-$" + chips.get(i).getValue());
@@ -133,7 +181,7 @@ public class Game {
         removeChipsButtonRow.revalidate();
 
         JPanel chipsAvailable = new JPanel();
-        chipsAvailable.setBackground(casinoGreen);
+//        chipsAvailable.setBackground(casinoGreen);
         chipsAvailable.setLayout(new BoxLayout(chipsAvailable, BoxLayout.X_AXIS));
         ArrayList<JLabel> chipsAvailableVisual = new ArrayList<>();
         chipsAvailableVisual.add(chip5000.getPictureAsset());
@@ -156,7 +204,7 @@ public class Game {
         addBetPromptLine.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel addChipsButtonRow = new JPanel();
-        addChipsButtonRow.setBackground(casinoGreen);
+//        addChipsButtonRow.setBackground(casinoGreen);
         addChipsButtonRow.setLayout(new BoxLayout(addChipsButtonRow, BoxLayout.X_AXIS));
         for (int i = chips.size() - 1; i >= 0; i--) {
             JButton addChipButton = new JButton("+$" + chips.get(i).getValue());
@@ -180,7 +228,7 @@ public class Game {
         }
 
         JPanel miscBets = new JPanel();
-        miscBets.setBackground(casinoGreen);
+//        miscBets.setBackground(casinoGreen);
         miscBets.setLayout(new BoxLayout(miscBets, BoxLayout.X_AXIS));
         JButton allIn = new JButton("All In!");
         JButton clearBet = new JButton("Clear Bet");
@@ -226,6 +274,9 @@ public class Game {
         JButton playButton = new JButton("Deal Me!");
         playButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         playButton.setPreferredSize(new Dimension(80, 40));
+        playButton.addActionListener(e -> {
+            card.show(mainPanel, "Deal Panel");
+        });
         betScreen.add(playButton);
 
         betScreen.add(Box.createRigidArea(new Dimension(0, 50)));
