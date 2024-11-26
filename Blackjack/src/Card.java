@@ -38,5 +38,10 @@ public class Card {
         return picture;
     }
     public JLabel getPictureAsset() { return pictureAsset; }
+    public JLabel getPictureAssetScaled(int width, int height) {
+        Image scaled = picture.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+        ImageIcon scaledIcon = new ImageIcon(scaled);
+        return new JLabel(scaledIcon);
+    }
 
 }

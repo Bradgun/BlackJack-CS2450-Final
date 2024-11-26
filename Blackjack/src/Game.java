@@ -109,7 +109,6 @@ public class Game /*implements ActionListener*/ {
         JPanel headerMini = new JPanel();
         headerMini.setLayout(new BoxLayout(headerMini, BoxLayout.Y_AXIS));
 
-        //FIXME: Wallet and bet text of this screen won't update because it needs to be able to refresh content when placing a bet on the other screen
         walletTextDealPanel.setFont(new Font("Wallet", Font.BOLD, 18));
         betText.setFont(new Font("Bet", Font.BOLD, 18));
         headerMini.add(walletTextDealPanel);
@@ -122,10 +121,10 @@ public class Game /*implements ActionListener*/ {
         ArrayList<JLabel> dealerCardsVisual = new ArrayList<>();
         int randomIndex = random.nextInt(deck.size() - 1);  // Cannot draw last card in deck, which is the back of a card
         dealerCards.add(deck.get(randomIndex));
-        dealerCardsVisual.add(deck.get(randomIndex).getPictureAsset());
+        dealerCardsVisual.add(deck.get(randomIndex).getPictureAssetScaled(150, 210));
         randomIndex = random.nextInt(deck.size() - 1);
         dealerCards.add(deck.get(randomIndex));    // Second card dealer draws is drawn face-down
-        dealerCardsVisual.add(deck.getLast().getPictureAsset());
+        dealerCardsVisual.add(deck.getLast().getPictureAssetScaled(150, 210));
         for (int i = 0 ; i < dealerCardsVisual.size(); i++) {
             dealerHand.add(dealerCardsVisual.get(i));
             if (i != dealerCardsVisual.size() - 1) {
@@ -153,10 +152,10 @@ public class Game /*implements ActionListener*/ {
         playerHand.setLayout(new BoxLayout(playerHand, BoxLayout.X_AXIS));
         randomIndex = random.nextInt(deck.size() - 1);  // Cannot draw last card in deck, which is the back of a card
         playerCards.add(deck.get(randomIndex));
-        playerCardsVisual.add(deck.get(randomIndex).getPictureAsset());
+        playerCardsVisual.add(deck.get(randomIndex).getPictureAssetScaled(150, 210));
         randomIndex = random.nextInt(deck.size() - 1);
         playerCards.add(deck.get(randomIndex));
-        playerCardsVisual.add(deck.get(randomIndex).getPictureAsset());
+        playerCardsVisual.add(deck.get(randomIndex).getPictureAssetScaled(150, 210));
 
         for (int i = 0 ; i < playerCardsVisual.size(); i++) {
             playerHand.add(playerCardsVisual.get(i));
@@ -175,10 +174,53 @@ public class Game /*implements ActionListener*/ {
         mainPanel.add(dealScreen, BorderLayout.CENTER);
 
         hitButton.addActionListener(e -> {
+            int randomNum = random.nextInt(deck.size() - 1);
+            playerCards.add(deck.get(randomNum));
+            playerCardsVisual.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
+            playerHand.add(Box.createRigidArea(new Dimension(20 ,0)));
+            playerHand.add(playerCardsVisual.getLast());
+            dealPanel.revalidate();
 
+            int playerTotal = 0;
+            for (int i = 0; i < playerCards.size(); i++) {
+                playerTotal = playerTotal + playerCards.get(i).getValue();
+            }
+
+            if (playerTotal > 21) {
+                //TODO: something something, if player busts, run the loss sequence
+            }
         });
         standButton.addActionListener(e -> {
+            hitButton.setEnabled(false);
+            standButton.setEnabled(false);
+            dealerHand.remove(2);   //Remove and replace face-down card with the actual card, simulating a "flipping over" of the card;
+            dealerHand.add(dealerCards.getLast().getPictureAssetScaled(150, 210));
+            dealPanel.revalidate();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
 
+            int dealerTotal = 0;
+            for (int i = 0; i < dealerCards.size(); i++) {
+                dealerTotal = dealerTotal + dealerCards.get(i).getValue();
+            }
+
+            int randomNum = random.nextInt(deck.size() - 1);
+            while (dealerTotal < 17) {
+                dealerCards.add(deck.get(randomNum));
+                dealerHand.add(Box.createRigidArea(new Dimension(20, 0)));
+                dealerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
+                dealerTotal = dealerTotal + dealerCards.getLast().getValue();
+                randomNum = random.nextInt(deck.size() - 1);
+                dealPanel.revalidate();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
         });
 
         splitButton.setVisible(false);
@@ -217,7 +259,7 @@ public class Game /*implements ActionListener*/ {
         betValueLine.add(totalBetText);
         betValueLine.add(betAmountText);
 
-        JPanel chipsAndButtonsAvailable = new JPanel();       //TODO: OVERHAUL
+        JPanel chipsAndButtonsAvailable = new JPanel();
 //        chipsAndButtonsAvailable.setBackground(casinoGreen);
         chipsAndButtonsAvailable.setLayout(new BoxLayout(chipsAndButtonsAvailable, BoxLayout.X_AXIS));
 
