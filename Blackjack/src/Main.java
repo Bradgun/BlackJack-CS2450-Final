@@ -66,7 +66,7 @@ public class Main {
             }
             try {
                 Game game = new Game(deck);
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
