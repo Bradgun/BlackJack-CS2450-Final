@@ -378,6 +378,29 @@ public class Game /*implements ActionListener*/ {
         return betScreen;
     }
 
+    public void clearBet() {
+        betAmount = 0;
+    }
+    public void setWalletAmount(boolean win) {
+        if (win) {
+            walletAmount = walletAmount + betAmount;
+        }
+    }
+    public JDialog winDialog() {
+        JDialog mainDialog = new JDialog();
+        mainDialog.setSize(400, 300);
+        mainDialog.setLayout(new BoxLayout(mainDialog, BoxLayout.Y_AXIS));
+
+        JLabel winText = new JLabel("Winner Winner Chicken Dinner!");
+
+        return mainDialog;
+    }
+    public JDialog lossDialog() {
+        JDialog mainDialog = new JDialog();
+
+        return mainDialog;
+    }
+
 //    public void actionPerformed(ActionEvent ae) {
 //        if (ae.getActionCommand().equals("Deal Me!")) {
 //            betPlaced = true;
