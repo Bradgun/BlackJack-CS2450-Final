@@ -15,7 +15,6 @@ public class Game /*implements ActionListener*/ {
     JButton doubleDownButton = new JButton("Double Down");
 
     ArrayList<Chip> chips = new ArrayList<>();
-    ArrayList<JLabel> chipsVisual = new ArrayList<>();
 
 //    Color casinoGreen = new Color(0, 210, 0);
 
@@ -26,20 +25,6 @@ public class Game /*implements ActionListener*/ {
     Image chipSprite1000 = ImageIO.read(new File("Chip Images/chip1000.png"));
     Image chipSprite5000 = ImageIO.read(new File("Chip Images/chip5000.png"));
 
-    Image scaled1 = chipSprite1.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-    Image scaled10 = chipSprite10.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-    Image scaled100 = chipSprite100.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-    Image scaled500 = chipSprite500.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-    Image scaled1000 = chipSprite1000.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-    Image scaled5000 = chipSprite5000.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-
-//    Chip chip1 = new Chip(1, scaled1);  // Set sprite size to rescaled variant
-//    Chip chip10 = new Chip(10, scaled10);
-//    Chip chip100 = new Chip(100, scaled100);
-//    Chip chip500 = new Chip(500, scaled500);
-//    Chip chip1000 = new Chip(1000, scaled1000);
-//    Chip chip5000 = new Chip(5000, scaled5000);
-
     Chip chip1 = new Chip(1, chipSprite1);    // Set sprite size to file default
     Chip chip10 = new Chip(10, chipSprite10);
     Chip chip100 = new Chip(100, chipSprite100);
@@ -47,19 +32,13 @@ public class Game /*implements ActionListener*/ {
     Chip chip1000 = new Chip(1000, chipSprite1000);
     Chip chip5000 = new Chip(5000, chipSprite5000);
 
-//    ArrayList<Card> dealerHand = new ArrayList<>();
-//    ArrayList<Card> playerHand = new ArrayList<>();
-
-    ArrayList<JLabel> dealerHandVisual = new ArrayList<>();
-    ArrayList<JLabel> playerHandVisual = new ArrayList<>();
-
     int walletAmount = 2500;
     int betAmount = 0;
     JLabel walletText = new JLabel("Wallet: $" + walletAmount);
     JLabel walletTextDealPanel = new JLabel("Wallet: $" + walletAmount);
     JLabel betText = new JLabel("Bet: $" + betAmount);
+    JLabel betAmountText;
     Random random = new Random();
-    boolean betPlaced = false;
 
     JFrame jfrm = new JFrame("Mack's Sidetrack Blackjack");
     CardLayout card = new CardLayout();
@@ -91,10 +70,6 @@ public class Game /*implements ActionListener*/ {
 
         jfrm.add(mainPanel);
         jfrm.setVisible(true);
-
-//        while (!betPlaced) {  //FIXME: Find a way to update the Deal Panel *after* the bet is placed
-//            Thread.sleep(1000);
-//        }
     }
 
     private JPanel dealPanel() throws IOException {
@@ -187,7 +162,10 @@ public class Game /*implements ActionListener*/ {
             }
 
             if (playerTotal > 21) {
-                //TODO: something something, if player busts, run the loss sequence
+                //TODO: something something, if player busts, run the loss sequence, and stop them from hitting
+                JDialog L = lossDialog();
+                L.setLocationRelativeTo(jfrm);
+                L.setVisible(true);
             }
         });
         standButton.addActionListener(e -> {
@@ -251,7 +229,7 @@ public class Game /*implements ActionListener*/ {
 //        betValueLine.setBackground(casinoGreen);
         betValueLine.setLayout(new BoxLayout(betValueLine, BoxLayout.Y_AXIS));
         JLabel totalBetText = new JLabel("Total Bet:");
-        JLabel betAmountText = new JLabel("$" + betAmount);
+        betAmountText = new JLabel("$" + betAmount);
         totalBetText.setFont(new Font("Total Bet", Font.PLAIN, 36));
         betAmountText.setFont(new Font("Bet Amount", Font.BOLD, 36));
         totalBetText.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -380,6 +358,9 @@ public class Game /*implements ActionListener*/ {
 
     public void clearBet() {
         betAmount = 0;
+        walletText.setText("Wallet: $" + walletAmount);
+        betAmountText.setText("Bet: $" + betAmount);
+        betPanel.revalidate();
     }
     public void setWalletAmount(boolean win) {
         if (win) {
@@ -388,23 +369,66 @@ public class Game /*implements ActionListener*/ {
     }
     public JDialog winDialog() {
         JDialog mainDialog = new JDialog();
+        mainDialog.setTitle("Winner!");
         mainDialog.setSize(400, 300);
-        mainDialog.setLayout(new BoxLayout(mainDialog, BoxLayout.Y_AXIS));
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
         JLabel winText = new JLabel("Winner Winner Chicken Dinner!");
+        JLabel winAmount = new JLabel("+$" + betAmount);
+
+        winText.setFont(new Font("WinText", Font.BOLD, 24));
+        winAmount.setFont(new Font("WinAmount", Font.BOLD, 24));
+        winAmount.setForeground(Color.GREEN);
+
+        mainPanel.add(winText);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainPanel.add(winAmount);
+
+        mainDialog.add(mainPanel);
+
+        clearBet();
+        setWalletAmount(true);
 
         return mainDialog;
     }
     public JDialog lossDialog() {
-        JDialog mainDialog = new JDialog();
+        JDialog mainDialog = new JDialog(jfrm, true);
+        mainDialog.setTitle("Loser!");
+        mainDialog.setLocationRelativeTo(null);
+
+        mainDialog.setSize(400, 300);
+        JPanel mainDialogPanel = new JPanel();
+        mainDialogPanel.setLayout(new BoxLayout(mainDialogPanel, BoxLayout.Y_AXIS));
+
+        JLabel lossText = new JLabel("L Bozo!");
+        JLabel lossAmount = new JLabel("-$" + betAmount);
+        JButton confirmButton = new JButton("Great...");
+        confirmButton.addActionListener(e -> {
+            mainDialog.dispose();
+            card.show(mainPanel, "Bet Panel");
+            betPanel.revalidate();
+        });
+
+        lossText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lossAmount.setAlignmentX(Component.CENTER_ALIGNMENT);
+        confirmButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        lossText.setFont(new Font("LossText", Font.BOLD, 24));
+        lossAmount.setFont(new Font("LossAmount", Font.BOLD, 24));
+        lossAmount.setForeground(Color.RED);
+
+        mainDialogPanel.add(lossText);
+        mainDialogPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainDialogPanel.add(lossAmount);
+        mainDialogPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainDialogPanel.add(confirmButton);
+
+        mainDialog.add(mainDialogPanel);
+
+        setWalletAmount(false);
+        clearBet();
 
         return mainDialog;
     }
-
-//    public void actionPerformed(ActionEvent ae) {
-//        if (ae.getActionCommand().equals("Deal Me!")) {
-//            betPlaced = true;
-//            card.show(mainPanel, "Deal Panel");
-//        }
-//    }
 }

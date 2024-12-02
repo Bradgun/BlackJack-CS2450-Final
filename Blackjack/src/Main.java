@@ -123,4 +123,4 @@ public class Main {
     }
 }
 
-//TODO: Grab sprites from all the cards and toss them into Card Images, implement their initialization in initializeDeck()
+//TODO: Clear dealPanel of cards when the player wins or loses
