@@ -72,6 +72,33 @@ public class Game /*implements ActionListener*/ {
         jfrm.setVisible(true);
     }
 
+    Game(ArrayList<Card> givenDeck, int wallet) throws IOException, InterruptedException {
+        walletAmount = wallet;
+        deck.addAll(givenDeck);
+//        Collections.shuffle(deck);    //Shuffle unnecessary as we're already drawing at random
+
+        chips.add(chip5000);
+        chips.add(chip1000);
+        chips.add(chip500);
+        chips.add(chip100);
+        chips.add(chip10);
+        chips.add(chip1);
+
+        jfrm.setSize(960, 720);
+        jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jfrm.setLocationRelativeTo(null);
+
+        betPanel = betPanel();
+        dealPanel = dealPanel();
+
+        mainPanel.add(betPanel, "Bet Panel");
+        mainPanel.add(dealPanel, "Deal Panel");
+        card.show(mainPanel, "Bet Panel");
+
+        jfrm.add(mainPanel);
+        jfrm.setVisible(true);
+    }
+
     private JPanel dealPanel() throws IOException {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
@@ -201,6 +228,7 @@ public class Game /*implements ActionListener*/ {
             }
         });
 
+        //TODO: Thinking about ditching this mechanic for now, will be implemented in the extended version post-CS2450
         splitButton.setVisible(false);
         splitButton.addActionListener(e -> {
 
@@ -376,6 +404,20 @@ public class Game /*implements ActionListener*/ {
 
         JLabel winText = new JLabel("Winner Winner Chicken Dinner!");
         JLabel winAmount = new JLabel("+$" + betAmount);
+        JButton confirmButton = new JButton("WOOOOOOOOO!!!");
+        confirmButton.addActionListener(e -> {
+            mainDialog.dispose();
+            betPanel.removeAll();
+            dealPanel.removeAll();
+            jfrm.dispose();
+            try {
+                Game newGame = new Game(deck, walletAmount);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         winText.setFont(new Font("WinText", Font.BOLD, 24));
         winAmount.setFont(new Font("WinAmount", Font.BOLD, 24));
@@ -406,8 +448,16 @@ public class Game /*implements ActionListener*/ {
         JButton confirmButton = new JButton("Great...");
         confirmButton.addActionListener(e -> {
             mainDialog.dispose();
-            card.show(mainPanel, "Bet Panel");
-            betPanel.revalidate();
+            betPanel.removeAll();
+            dealPanel.removeAll();
+            jfrm.dispose();
+            try {
+                Game newGame = new Game(deck, walletAmount);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         lossText.setAlignmentX(Component.CENTER_ALIGNMENT);
