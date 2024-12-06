@@ -10,6 +10,7 @@ public class Card {
     int value;
     Image picture;
     JLabel pictureAsset;
+    boolean aceAltered = false;
 
     Card(String rank, String suit, int value, String imagePath) throws IOException {
         this.rank = rank;

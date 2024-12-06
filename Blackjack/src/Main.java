@@ -96,7 +96,7 @@ public class Main {
         Card of4 = new Card("2", suit, 4, (relativeDirectory + "/4Of" + suit + ".png"));
         Card of3 = new Card("2", suit, 3, (relativeDirectory + "/3Of" + suit + ".png"));
         Card of2 = new Card("2", suit, 2, (relativeDirectory + "/2Of" + suit + ".png"));
-        Card ace = new Card("Ace", suit, 1, (relativeDirectory + "/aceOf" + suit + ".png"));
+        Card ace = new Card("Ace", suit, 11, (relativeDirectory + "/aceOf" + suit + ".png"));
 
         deck.add(king);
         deck.add(queen);
