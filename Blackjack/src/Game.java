@@ -194,6 +194,12 @@ public class Game /*implements ActionListener*/ {
                 L.setLocationRelativeTo(jfrm);
                 L.setVisible(true);
             }
+            else if (playerTotal == 21) {
+                //Player automatically wins if they hit 21 (hits BlackJack)
+                JDialog W = winDialog();
+                W.setLocationRelativeTo(jfrm);
+                W.setVisible(true);
+            }
         });
         standButton.addActionListener(e -> {
             hitButton.setEnabled(false);
@@ -225,6 +231,24 @@ public class Game /*implements ActionListener*/ {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
+            }
+
+            //outcome determination if dealer busts or if dealer stands and has less than the player
+            int playerTotal = calculateTotal(playerCards);
+            if (dealerTotal > 21 || playerTotal > dealerTotal) {
+                JDialog W = winDialog();
+                W.setLocationRelativeTo(jfrm);
+                W.setVisible(true);
+            }
+            else if (playerTotal < dealerTotal) {
+                JDialog L = lossDialog();
+                L.setLocationRelativeTo(jfrm);
+                L.setVisible(true);
+            }
+            else {
+                JOptionPane.showMessageDialog(jfrm, "It's a tie! your bet has been returned.");
+                setWalletAmount(true);
+                clearBet();
             }
         });
 
@@ -480,5 +504,12 @@ public class Game /*implements ActionListener*/ {
         clearBet();
 
         return mainDialog;
+    }
+
+    private void disableButtons() {
+        hitButton.setEnabled(false);
+        standButton.setEnabled(false);
+        splitButton.setEnabled(false);
+        doubleDownButton.setEnabled(false);
     }
 }
