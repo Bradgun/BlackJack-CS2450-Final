@@ -175,6 +175,12 @@ public class Game /*implements ActionListener*/ {
         dealScreen.add(playerHand);
         mainPanel.add(dealScreen, BorderLayout.CENTER);
 
+        //declare the total variables for the dealer and the player
+        int playerTotal = 0;
+        int dealerTotal = 0;
+        
+
+
         hitButton.addActionListener(e -> {
             int randomNum = random.nextInt(deck.size() - 1);
             playerCards.add(deck.get(randomNum));
@@ -183,10 +189,13 @@ public class Game /*implements ActionListener*/ {
             playerHand.add(playerCardsVisual.getLast());
             dealPanel.revalidate();
 
-            int playerTotal = 0;
-            for (int i = 0; i < playerCards.size(); i++) {
-                playerTotal = playerTotal + playerCards.get(i).getValue();
-            }
+            //int playerTotal = 0;
+            //for (int i = 0; i < playerCards.size(); i++) {
+            //    playerTotal = playerTotal + playerCards.get(i).getValue();
+            //}
+
+            //Calculate playerTotal using the method
+            playerTotal = calculateTotal(playerCards);
 
             if (playerTotal > 21) {
                 //TODO: something something, if player busts, run the loss sequence, and stop them from hitting
@@ -213,10 +222,13 @@ public class Game /*implements ActionListener*/ {
                 throw new RuntimeException(ex);
             }
 
-            int dealerTotal = 0;
-            for (int i = 0; i < dealerCards.size(); i++) {
-                dealerTotal = dealerTotal + dealerCards.get(i).getValue();
-            }
+            //int dealerTotal = 0;
+            //for (int i = 0; i < dealerCards.size(); i++) {
+            //    dealerTotal = dealerTotal + dealerCards.get(i).getValue();
+            //}
+
+            //calculate dealerTotal using the method
+            dealerTotal = calculateTotal(dealerCards);
 
             int randomNum = random.nextInt(deck.size() - 1);
             while (dealerTotal < 17) {
@@ -234,7 +246,6 @@ public class Game /*implements ActionListener*/ {
             }
 
             //outcome determination if dealer busts or if dealer stands and has less than the player
-            int playerTotal = calculateTotal(playerCards);
             if (dealerTotal > 21 || playerTotal > dealerTotal) {
                 JDialog W = winDialog();
                 W.setLocationRelativeTo(jfrm);
@@ -511,5 +522,30 @@ public class Game /*implements ActionListener*/ {
         standButton.setEnabled(false);
         splitButton.setEnabled(false);
         doubleDownButton.setEnabled(false);
+    }
+
+    public int calculateTotal(ArrayList<Card> hand) {
+        //create placeholder for total score and ace count
+        int total = 0;
+        int aceCount = 0;
+
+        //iterate through the cards in the player or dealer's hand
+        for (int i  = 0; i < hand.size(); i++) {
+            Card card = hand.get(i);
+            total += card.getValue();
+
+            //find if there's any aces in the hand and add it to aceCount
+            if (card.getRank().equals("Ace")) {
+                aceCount++;
+            }
+        }
+        //Ace can be 1 or 11 points, let ace equal to 11 if score allows it without busting
+        //Converting ace from 1 to 11 points -> 10 points added
+        //if score is above 11, then converting an ace will result in a bust, so exit loop without worrying about aceCount
+        while (total <= 11 && aceCount > 0) {
+            total += 10;
+            aceCount--;
+        }
+        return total;
     }
 }
