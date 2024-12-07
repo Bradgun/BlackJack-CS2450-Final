@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class Main {
     public static ArrayList<Card> deck = new ArrayList<>();
     static JFrame jfrm = new JFrame("Blackjack");
+    static JPanel tutorialPanel;
 
     public static void main(String[] args) throws InterruptedException, IOException {
 //        printSleepMessage("Initializing deck...", 1500);
@@ -39,6 +40,8 @@ public class Main {
         JLabel subheader = new JLabel("Group 9 -- High Rollers");
         JLabel title = new JLabel("Mack's Sidetrack Blackjack");
         JButton newGame = new JButton("New Game");
+        JButton tutorial = new JButton("Tutorial");
+        tutorialPanel = tutorialPanel();
 
         header.setAlignmentX(Component.CENTER_ALIGNMENT);
         subheader.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -69,6 +72,9 @@ public class Main {
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        });
+        tutorial.addActionListener(e -> {
+
         });
 
         jfrm.add(startPanel);
@@ -121,6 +127,12 @@ public class Main {
         printSleepMessage("Performing background check...", 2000);
         printSleepMessage("No criminal history detected. Access granted.", 1000);
     }
-}
 
-//TODO: Clear dealPanel of cards when the player wins or loses
+    public static JPanel tutorialPanel() {
+        JPanel mainPanel = new JPanel();
+        CardLayout cardLayout = new CardLayout();
+        mainPanel.setLayout(cardLayout);
+
+        return mainPanel;
+    }
+}

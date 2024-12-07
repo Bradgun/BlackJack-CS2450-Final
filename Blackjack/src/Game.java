@@ -194,7 +194,7 @@ public class Game /*implements ActionListener*/ {
         for (int i = 0; i < playerCards.size(); i++) {
             playerTotalPrime = playerTotalPrime + playerCards.get(i).getValue();
         }
-        updateTotalsFirst();
+        updateTotalsFirst(dealerCards.getFirst().getValue());
 
         mainPanel.add(header, BorderLayout.NORTH);
         dealScreen.add(dealerTotalText);
@@ -247,7 +247,7 @@ public class Game /*implements ActionListener*/ {
                 }
             }
             playerTotalPrime = playerTotal;
-            updateTotalsFirst();
+            updateTotalsFirst(dealerCards.getFirst().getValue());
         });
         standButton.addActionListener(e -> {
             hitButton.setEnabled(false);
@@ -255,11 +255,6 @@ public class Game /*implements ActionListener*/ {
             dealerHand.remove(2);   //Remove and replace face-down card with the actual card, simulating a "flipping over" of the card;
             dealerHand.add(dealerCards.getLast().getPictureAssetScaled(150, 210));
             dealPanel.revalidate();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
 
             int dealerTotal = 0;
             for (int i = 0; i < dealerCards.size(); i++) {
@@ -274,12 +269,8 @@ public class Game /*implements ActionListener*/ {
                 dealerTotal = dealerTotal + dealerCards.getLast().getValue();
                 randomNum = random.nextInt(deck.size() - 1);
                 dealPanel.revalidate();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
             }
+            dealerTotalPrime = dealerTotal;
             updateTotals();
         });
         doubleDownButton.addActionListener(e -> {
@@ -343,11 +334,6 @@ public class Game /*implements ActionListener*/ {
                 dealerTotal = dealerTotal + dealerCards.getLast().getValue();
                 randomNum = random.nextInt(deck.size() - 1);
                 dealPanel.revalidate();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
             }
             playerTotalPrime = playerTotal;
             updateTotals();
@@ -615,8 +601,8 @@ public class Game /*implements ActionListener*/ {
         dealerTotalText.setText("Dealer's total: " + dealerTotalPrime);
         playerTotalText.setText("Your total: " + playerTotalPrime);
     }
-    public void updateTotalsFirst() {
-        dealerTotalText.setText("Dealer's total: ?");
+    public void updateTotalsFirst(int firstCardValue) {
+        dealerTotalText.setText("Dealer's total: " + firstCardValue + " + ?");
         playerTotalText.setText("Your total: " + playerTotalPrime);
     }
 }
