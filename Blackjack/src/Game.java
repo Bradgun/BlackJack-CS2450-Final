@@ -14,6 +14,10 @@ public class Game /*implements ActionListener*/ {
     JButton splitButton = new JButton("Split");
     JButton doubleDownButton = new JButton("Double Down");
 
+    //declare the total variables for the dealer and the player
+    int playerTotal = 0;
+    int dealerTotal = 0;
+
     ArrayList<Chip> chips = new ArrayList<>();
 
 //    Color casinoGreen = new Color(0, 210, 0);
@@ -174,13 +178,7 @@ public class Game /*implements ActionListener*/ {
         dealScreen.add(Box.createRigidArea(new Dimension(0, 20)));
         dealScreen.add(playerHand);
         mainPanel.add(dealScreen, BorderLayout.CENTER);
-
-        //declare the total variables for the dealer and the player
-        int playerTotal = 0;
-        int dealerTotal = 0;
-        
-
-
+    
         hitButton.addActionListener(e -> {
             int randomNum = random.nextInt(deck.size() - 1);
             playerCards.add(deck.get(randomNum));
