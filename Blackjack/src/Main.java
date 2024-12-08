@@ -20,7 +20,7 @@ public class Main {
         initializeCards("Spades", "Card Images/Spades");
         initializeCards("Hearts", "Card Images/Hearts");
         initializeCards("Clubs", "Card Images/Clubs");
-//        initializeCards("Diamonds", "Card Images/Diamonds");
+        initializeCards("Diamonds", "Card Images/Diamonds");
         deck.add(new Card("Back", "None", 0, "Card Images/Misc/cardBack.png")); // Add back of card sprite
 //        printSleepMessage("Deck created.", 500);
 
