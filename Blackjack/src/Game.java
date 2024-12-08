@@ -8,16 +8,16 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Game /*implements ActionListener*/ {
-    int dealerTotalPrime = 0;
-    int playerTotalPrime = 0;
     JLabel dealerTotalText = new JLabel();
     JLabel playerTotalText = new JLabel();
 
     ArrayList<Card> deck = new ArrayList<>();
     JButton hitButton = new JButton("Hit");
     JButton standButton = new JButton("Stand");
-//    JButton splitButton = new JButton("Split");
     JButton doubleDownButton = new JButton("Double Down");
+
+    int dealerTotal = 0;
+    int playerTotal = 0;
 
     ArrayList<Chip> chips = new ArrayList<>();
 
@@ -67,16 +67,7 @@ public class Game /*implements ActionListener*/ {
         jfrm.setLocationRelativeTo(null);
 
         betPanel = betPanel();
-//        betPanel.setOpaque(false);
         dealPanel = dealPanel();
-//        dealPanel.setOpaque(false);
-
-        Image backgroundImage = ImageIO.read(new File ("Misc Images/corgi.png"));
-        ImageIcon backgroundIcon = new ImageIcon(backgroundImage);
-        JLabel mainPanelBackground = new JLabel(backgroundIcon);
-        //TODO: If possible, find a way to set a background image!
-
-//        mainPanel.setOpaque(false);
 
         mainPanel.add(betPanel, "Bet Panel");
         mainPanel.add(dealPanel, "Deal Panel");
@@ -114,8 +105,6 @@ public class Game /*implements ActionListener*/ {
     }
 
     private JPanel dealPanel() throws IOException {
-        AtomicInteger aceCount = new AtomicInteger();
-
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
@@ -160,15 +149,12 @@ public class Game /*implements ActionListener*/ {
 
         hitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         standButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-//        splitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         doubleDownButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonRow.add(doubleDownButton);
         buttonRow.add(Box.createRigidArea(new Dimension(20, 0)));
         buttonRow.add(hitButton);
         buttonRow.add(Box.createRigidArea(new Dimension(20, 0)));
         buttonRow.add(standButton);
-
-//        buttonRow.add(splitButton);   //FIXME: Uncomment when fully implemented
 
         JPanel playerHand = new JPanel();
         ArrayList<Card> playerCards = new ArrayList<>();
@@ -187,14 +173,6 @@ public class Game /*implements ActionListener*/ {
                 playerHand.add(Box.createRigidArea(new Dimension(20 ,0)));
             }
         }
-
-        for (int i = 0; i < dealerCards.size(); i++) {
-            dealerTotalPrime = dealerTotalPrime + dealerCards.get(i).getValue();
-        }
-        for (int i = 0; i < playerCards.size(); i++) {
-            playerTotalPrime = playerTotalPrime + playerCards.get(i).getValue();
-        }
-        updateTotalsFirst();
 
         mainPanel.add(header, BorderLayout.NORTH);
         dealScreen.add(dealerTotalText);
@@ -218,36 +196,20 @@ public class Game /*implements ActionListener*/ {
             playerHand.add(playerCardsVisual.getLast());
             dealPanel.revalidate();
 
-            if (deck.get(randomNum).getRank().equals("Ace")) {
-                aceCount.getAndIncrement();
-            }
-
-            int playerTotal = 0;
-            for (int i = 0; i < playerCards.size(); i++) {
-                playerTotal = playerTotal + playerCards.get(i).getValue();
-            }
+            playerTotal = calculateTotal(playerCards);
 
             if (playerTotal > 21) {
-                int aceCountInt = aceCount.get();
-                for (int i = 0; i < playerCards.size(); i++) {
-                    if (playerCards.get(i).getRank().equals("Ace")) {
-                        if (!(playerCards.get(i).aceAltered)) { //If this ace has already been checked
-                            playerCards.get(i).setValue(1);
-                            aceCount.getAndDecrement();
-                            break;
-                        }
-                    }
-                }
-
-                if (aceCountInt == 0) { //Only if all the aces have been handled
-                    doubleDownButton.setVisible(true);  //Upon loss, reset the state of the double down button
-                    JDialog L = lossDialog();
-                    L.setLocationRelativeTo(jfrm);
-                    L.setVisible(true);
-                }
+                doubleDownButton.setVisible(true);  //Upon loss, reset the state of the double down button
+                JDialog L = lossDialog();
+                L.setLocationRelativeTo(jfrm);
+                L.setVisible(true);
             }
-            playerTotalPrime = playerTotal;
-            updateTotalsFirst();
+            else if (playerTotal == 21) {
+                JDialog W = winDialog();
+                W.setLocationRelativeTo(jfrm);
+                W.setVisible(true);
+            }
+            updatePlayerTotal();
         });
         standButton.addActionListener(e -> {
             hitButton.setEnabled(false);
@@ -255,32 +217,35 @@ public class Game /*implements ActionListener*/ {
             dealerHand.remove(2);   //Remove and replace face-down card with the actual card, simulating a "flipping over" of the card;
             dealerHand.add(dealerCards.getLast().getPictureAssetScaled(150, 210));
             dealPanel.revalidate();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
 
-            int dealerTotal = 0;
-            for (int i = 0; i < dealerCards.size(); i++) {
-                dealerTotal = dealerTotal + dealerCards.get(i).getValue();
-            }
+            dealerTotal = calculateTotal(dealerCards);
 
             int randomNum = random.nextInt(deck.size() - 1);
             while (dealerTotal < 17) {
                 dealerCards.add(deck.get(randomNum));
                 dealerHand.add(Box.createRigidArea(new Dimension(20, 0)));
                 dealerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
-                dealerTotal = dealerTotal + dealerCards.getLast().getValue();
+                dealerTotal = calculateTotal(dealerCards);
                 randomNum = random.nextInt(deck.size() - 1);
                 dealPanel.revalidate();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
+                updateTotals();
             }
-            updateTotals();
+
+            if (dealerTotal > 21 || playerTotal > dealerTotal) {
+                JDialog W = winDialog();
+                W.setLocationRelativeTo(jfrm);
+                W.setVisible(true);
+            }
+            else if (playerTotal < dealerTotal) {
+                JDialog L = lossDialog();
+                L.setLocationRelativeTo(jfrm);
+                L.setVisible(true);
+            }
+            else {
+                JOptionPane.showMessageDialog(jfrm, "Push! Your bet has been returned.");
+                setWalletAmount(true);
+                clearBet();
+            }
         });
         doubleDownButton.addActionListener(e -> {
             walletAmount = walletAmount - betAmount;
@@ -297,60 +262,53 @@ public class Game /*implements ActionListener*/ {
             playerHand.add(Box.createRigidArea(new Dimension(20 , 0)));
             playerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
 
-            if (deck.get(randomNum).getRank().equals("Ace")) {
-                aceCount.getAndIncrement();
-            }
+            playerTotal = calculateTotal(playerCards);
 
-            int playerTotal = 0;
-            for (int i = 0; i < playerCards.size(); i++) {
-                playerTotal = playerTotal + playerCards.get(i).getValue();
+            if (playerTotal > 21) { //If player busts
+                doubleDownButton.setVisible(true);  //Upon loss, reset the state of the double down button
+                JDialog L = lossDialog();
+                L.setLocationRelativeTo(jfrm);
+                L.setVisible(true);
             }
+            else if (playerTotal == 21) {   //If player wins
+                JDialog W = winDialog();
+                W.setLocationRelativeTo(jfrm);
+                W.setVisible(true);
+            }
+            else {  //If player doesn't bust, but doesn't get a blackjack
+                dealerHand.remove(2);   //Remove and replace face-down card with the actual card, simulating a "flipping over" of the card;
+                dealerHand.add(dealerCards.getLast().getPictureAssetScaled(150, 210));
+                dealPanel.revalidate();
 
-            if (playerTotal > 21) {
-                int aceCountInt = aceCount.get();
-                for (int i = 0; i < playerCards.size(); i++) {
-                    if (playerCards.get(i).getRank().equals("Ace")) {
-                        if (!(playerCards.get(i).aceAltered)) { //If this ace has already been checked
-                            playerCards.get(i).setValue(1);
-                            aceCount.getAndDecrement();
-                            break;
-                        }
-                    }
+                dealerTotal = calculateTotal(dealerCards);
+
+                randomNum = random.nextInt(deck.size() - 1);
+                while (dealerTotal < 17) {
+                    dealerCards.add(deck.get(randomNum));
+                    dealerHand.add(Box.createRigidArea(new Dimension(20, 0)));
+                    dealerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
+                    dealerTotal = calculateTotal(dealerCards);
+                    randomNum = random.nextInt(deck.size() - 1);
+                    updateTotals();
+                    dealPanel.revalidate();
                 }
 
-                if (aceCountInt == 0) { //Only if all the aces have been handled
-                    doubleDownButton.setVisible(true);  //Upon loss, reset the state of the double down button
+                if (dealerTotal > 21 || playerTotal > dealerTotal) {
+                    JDialog W = winDialog();
+                    W.setLocationRelativeTo(jfrm);
+                    W.setVisible(true);
+                }
+                else if (playerTotal < dealerTotal) {
                     JDialog L = lossDialog();
                     L.setLocationRelativeTo(jfrm);
                     L.setVisible(true);
                 }
-            }
-
-            dealerHand.remove(2);   //Remove and replace face-down card with the actual card, simulating a "flipping over" of the card;
-            dealerHand.add(dealerCards.getLast().getPictureAssetScaled(150, 210));
-            dealPanel.revalidate();
-
-            int dealerTotal = 0;
-            for (int i = 0; i < dealerCards.size(); i++) {
-                dealerTotal = dealerTotal + dealerCards.get(i).getValue();
-            }
-
-            randomNum = random.nextInt(deck.size() - 1);
-            while (dealerTotal < 17) {
-                dealerCards.add(deck.get(randomNum));
-                dealerHand.add(Box.createRigidArea(new Dimension(20, 0)));
-                dealerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
-                dealerTotal = dealerTotal + dealerCards.getLast().getValue();
-                randomNum = random.nextInt(deck.size() - 1);
-                dealPanel.revalidate();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
+                else {
+                    JOptionPane.showMessageDialog(jfrm, "Push! Your bet has been returned.");
+                    setWalletAmount(true);
+                    clearBet();
                 }
             }
-            playerTotalPrime = playerTotal;
-            updateTotals();
         });
 
         hitButton.setToolTipText("Press this button to draw another card.");
@@ -361,11 +319,8 @@ public class Game /*implements ActionListener*/ {
         standButton.setMnemonic('s');
         doubleDownButton.setMnemonic('d');
 
-        //TODO: Thinking about ditching this mechanic for now, will be implemented in the extended version post-CS2450
-//        splitButton.setVisible(false);
-//        splitButton.addActionListener(e -> {
-//
-//        });
+        playerTotal = calculateTotal(playerCards);
+        updatePlayerTotal();
 
         return mainPanel;
     }
@@ -552,9 +507,15 @@ public class Game /*implements ActionListener*/ {
         winAmount.setFont(new Font("WinAmount", Font.BOLD, 24));
         winAmount.setForeground(Color.GREEN);
 
+        winText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        winAmount.setAlignmentX(Component.CENTER_ALIGNMENT);
+        confirmButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         mainPanel.add(winText);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         mainPanel.add(winAmount);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainPanel.add(confirmButton);
 
         mainDialog.add(mainPanel);
 
@@ -612,11 +573,36 @@ public class Game /*implements ActionListener*/ {
     }
 
     public void updateTotals() {
-        dealerTotalText.setText("Dealer's total: " + dealerTotalPrime);
-        playerTotalText.setText("Your total: " + playerTotalPrime);
+        dealerTotalText.setText("Dealer's total: " + dealerTotal);
+        playerTotalText.setText("Your total: " + playerTotal);
     }
-    public void updateTotalsFirst() {
+    public void updatePlayerTotal() {
         dealerTotalText.setText("Dealer's total: ?");
-        playerTotalText.setText("Your total: " + playerTotalPrime);
+        playerTotalText.setText("Your total: " + playerTotal);
+    }
+
+    public int calculateTotal(ArrayList<Card> hand) {
+        //create placeholder for total score and ace count
+        int total = 0;
+        int aceCount = 0;
+
+        //iterate through the cards in the player or dealer's hand
+        for (int i  = 0; i < hand.size(); i++) {
+            Card card = hand.get(i);
+            total += card.getValue();
+
+            //find if there's any aces in the hand and add it to aceCount
+            if (card.getRank().equals("Ace")) {
+                aceCount++;
+            }
+        }
+        //Ace can be 1 or 11 points, let ace equal to 11 if score allows it without busting
+        //Converting ace from 1 to 11 points -> 10 points added
+        //if score is above 11, then converting an ace will result in a bust, so exit loop without worrying about aceCount
+        while (total <= 11 && aceCount > 0) {
+            total += 10;
+            aceCount--;
+        }
+        return total;
     }
 }

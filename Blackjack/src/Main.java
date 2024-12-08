@@ -88,13 +88,13 @@ public class Main {
         Card queen = new Card("Queen", suit, 10, (relativeDirectory + "/queenOf" + suit + ".png"));
         Card jack = new Card("Jack", suit, 10, (relativeDirectory + "/jackOf" + suit + ".png"));
         Card of10 = new Card("10", suit, 10, (relativeDirectory + "/10Of" + suit + ".png"));
-        Card of9 = new Card("2", suit, 9, (relativeDirectory + "/9Of" + suit + ".png"));
-        Card of8 = new Card("2", suit, 8, (relativeDirectory + "/8Of" + suit + ".png"));
-        Card of7 = new Card("2", suit, 7, (relativeDirectory + "/7Of" + suit + ".png"));
-        Card of6 = new Card("2", suit, 6, (relativeDirectory + "/6Of" + suit + ".png"));
-        Card of5 = new Card("2", suit, 5, (relativeDirectory + "/5Of" + suit + ".png"));
-        Card of4 = new Card("2", suit, 4, (relativeDirectory + "/4Of" + suit + ".png"));
-        Card of3 = new Card("2", suit, 3, (relativeDirectory + "/3Of" + suit + ".png"));
+        Card of9 = new Card("9", suit, 9, (relativeDirectory + "/9Of" + suit + ".png"));
+        Card of8 = new Card("8", suit, 8, (relativeDirectory + "/8Of" + suit + ".png"));
+        Card of7 = new Card("7", suit, 7, (relativeDirectory + "/7Of" + suit + ".png"));
+        Card of6 = new Card("6", suit, 6, (relativeDirectory + "/6Of" + suit + ".png"));
+        Card of5 = new Card("5", suit, 5, (relativeDirectory + "/5Of" + suit + ".png"));
+        Card of4 = new Card("4", suit, 4, (relativeDirectory + "/4Of" + suit + ".png"));
+        Card of3 = new Card("3", suit, 3, (relativeDirectory + "/3Of" + suit + ".png"));
         Card of2 = new Card("2", suit, 2, (relativeDirectory + "/2Of" + suit + ".png"));
         Card ace = new Card("Ace", suit, 11, (relativeDirectory + "/aceOf" + suit + ".png"));
 
