@@ -1,6 +1,9 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,6 +53,7 @@ public class Game /*implements ActionListener*/ {
     JPanel mainPanel = new JPanel(card);
     JPanel betPanel;
     JPanel dealPanel;
+    JPanel gameOverPanel;
 
     Game(ArrayList<Card> givenDeck) throws IOException, InterruptedException {
         deck.addAll(givenDeck);
@@ -68,9 +72,11 @@ public class Game /*implements ActionListener*/ {
 
         betPanel = betPanel();
         dealPanel = dealPanel();
+        gameOverPanel = badEnding();
 
         mainPanel.add(betPanel, "Bet Panel");
         mainPanel.add(dealPanel, "Deal Panel");
+        mainPanel.add(gameOverPanel, "Game Over Panel");
         card.show(mainPanel, "Bet Panel");
 
         jfrm.add(mainPanel);
@@ -95,9 +101,11 @@ public class Game /*implements ActionListener*/ {
 
         betPanel = betPanel();
         dealPanel = dealPanel();
+        gameOverPanel = badEnding();
 
         mainPanel.add(betPanel, "Bet Panel");
         mainPanel.add(dealPanel, "Deal Panel");
+        mainPanel.add(gameOverPanel, "Game Over Panel");
         card.show(mainPanel, "Bet Panel");
 
         jfrm.add(mainPanel);
@@ -248,72 +256,74 @@ public class Game /*implements ActionListener*/ {
             }
         });
         doubleDownButton.addActionListener(e -> {
-            walletAmount = walletAmount - betAmount;
-            betAmount = betAmount * 2;
-            walletTextDealPanel.setText("Wallet: $" + walletAmount);
-            betText.setText("Bet: $" + betAmount);
+            if (walletAmount - betAmount > 0) {
+                walletAmount = walletAmount - betAmount;
+                betAmount = betAmount * 2;
+                walletTextDealPanel.setText("Wallet: $" + walletAmount);
+                betText.setText("Bet: $" + betAmount);
 
-            hitButton.setEnabled(false);
-            standButton.setEnabled(false);
-            doubleDownButton.setEnabled(false);
+                hitButton.setEnabled(false);
+                standButton.setEnabled(false);
+                doubleDownButton.setEnabled(false);
 
-            int randomNum = random.nextInt(deck.size() - 1);
-            playerCards.add(deck.get(randomNum));
-            playerHand.add(Box.createRigidArea(new Dimension(20 , 0)));
-            playerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
+                int randomNum = random.nextInt(deck.size() - 1);
+                playerCards.add(deck.get(randomNum));
+                playerHand.add(Box.createRigidArea(new Dimension(20 , 0)));
+                playerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
 
-            playerTotal = calculateTotal(playerCards);
+                playerTotal = calculateTotal(playerCards);
 
-            if (playerTotal > 21) { //If player busts
-                doubleDownButton.setVisible(true);  //Upon loss, reset the state of the double down button
-                JDialog L = lossDialog();
-                L.setLocationRelativeTo(jfrm);
-                L.setVisible(true);
-            }
-            else if (playerTotal == 21) {   //If player wins
-                JDialog W = winDialog();
-                W.setLocationRelativeTo(jfrm);
-                W.setVisible(true);
-            }
-            else {  //If player doesn't bust, but doesn't get a blackjack
-                dealerHand.remove(2);   //Remove and replace face-down card with the actual card, simulating a "flipping over" of the card;
-                dealerHand.add(dealerCards.getLast().getPictureAssetScaled(150, 210));
-                dealPanel.revalidate();
-
-                dealerTotal = calculateTotal(dealerCards);
-
-                randomNum = random.nextInt(deck.size() - 1);
-                while (dealerTotal < 17) {
-                    dealerCards.add(deck.get(randomNum));
-                    dealerHand.add(Box.createRigidArea(new Dimension(20, 0)));
-                    dealerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
-                    dealerTotal = calculateTotal(dealerCards);
-                    randomNum = random.nextInt(deck.size() - 1);
-                    updateTotals();
-                    dealPanel.revalidate();
-                }
-
-                if (dealerTotal > 21 || playerTotal > dealerTotal) {
-                    JDialog W = winDialog();
-                    W.setLocationRelativeTo(jfrm);
-                    W.setVisible(true);
-                }
-                else if (playerTotal < dealerTotal) {
+                if (playerTotal > 21) { //If player busts
+                    doubleDownButton.setVisible(true);  //Upon loss, reset the state of the double down button
                     JDialog L = lossDialog();
                     L.setLocationRelativeTo(jfrm);
                     L.setVisible(true);
                 }
-                else {
-                    JOptionPane.showMessageDialog(jfrm, "Push! Your bet has been returned.");
-                    setWalletAmount(true);
-                    clearBet();
+                else if (playerTotal == 21) {   //If player wins
+                    JDialog W = winDialog();
+                    W.setLocationRelativeTo(jfrm);
+                    W.setVisible(true);
+                }
+                else {  //If player doesn't bust, but doesn't get a blackjack
+                    dealerHand.remove(2);   //Remove and replace face-down card with the actual card, simulating a "flipping over" of the card;
+                    dealerHand.add(dealerCards.getLast().getPictureAssetScaled(150, 210));
+                    dealPanel.revalidate();
+
+                    dealerTotal = calculateTotal(dealerCards);
+
+                    randomNum = random.nextInt(deck.size() - 1);
+                    while (dealerTotal < 17) {
+                        dealerCards.add(deck.get(randomNum));
+                        dealerHand.add(Box.createRigidArea(new Dimension(20, 0)));
+                        dealerHand.add(deck.get(randomNum).getPictureAssetScaled(150, 210));
+                        dealerTotal = calculateTotal(dealerCards);
+                        randomNum = random.nextInt(deck.size() - 1);
+                        updateTotals();
+                        dealPanel.revalidate();
+                    }
+
+                    if (dealerTotal > 21 || playerTotal > dealerTotal) {
+                        JDialog W = winDialog();
+                        W.setLocationRelativeTo(jfrm);
+                        W.setVisible(true);
+                    }
+                    else if (playerTotal < dealerTotal) {
+                        JDialog L = lossDialog();
+                        L.setLocationRelativeTo(jfrm);
+                        L.setVisible(true);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(jfrm, "Push! Your bet has been returned.");
+                        setWalletAmount(true);
+                        clearBet();
+                    }
                 }
             }
         });
 
         hitButton.setToolTipText("Press this button to draw another card.");
         standButton.setToolTipText("Press this button to stop drawing.");
-        doubleDownButton.setToolTipText("Double your bet, but only draw one more card. Goes away when you choose to hit instead.");
+        doubleDownButton.setToolTipText("Double your bet, but only draw one more card. Goes away when you choose to hit instead. Cannot be done if you don't have enough money.");
 
         hitButton.setMnemonic('h');
         standButton.setMnemonic('s');
@@ -447,12 +457,18 @@ public class Game /*implements ActionListener*/ {
 //        playButton.addActionListener(this);
         betScreen.add(playButton);
 
+        JPanel cashOutPanel = new JPanel();
+        cashOutPanel.setLayout(new BorderLayout());
+        JButton cashOutButton = new JButton("Cash out!");
+        cashOutPanel.add(cashOutButton, BorderLayout.EAST);
+
         betScreen.add(Box.createRigidArea(new Dimension(0, 20)));
         JLabel errorNoBetText = new JLabel("You've gotta place some kind of wager, partner!");
         errorNoBetText.setVisible(false);
         errorNoBetText.setAlignmentX(Component.CENTER_ALIGNMENT);
         betScreen.add(errorNoBetText);
         betScreen.add(Box.createRigidArea(new Dimension(0, 30)));
+        betScreen.add(cashOutPanel);
 
         playButton.addActionListener(e -> {
             if (betAmount == 0) {
@@ -462,6 +478,15 @@ public class Game /*implements ActionListener*/ {
                 walletTextDealPanel.setText("Wallet: $" + walletAmount);
                 betText.setText("Bet: $" + betAmount);
                 card.show(mainPanel, "Deal Panel");
+            }
+        });
+        cashOutButton.addActionListener(e -> {
+            try {
+                JPanel goodEnding = goodEnding();
+                mainPanel.add(goodEnding, "Good Ending");
+                card.show(mainPanel, "Good Ending");
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
         });
 
@@ -476,7 +501,7 @@ public class Game /*implements ActionListener*/ {
     }
     public void setWalletAmount(boolean win) {
         if (win) {
-            walletAmount = walletAmount + betAmount;
+            walletAmount = walletAmount + (2 * betAmount);
         }
     }
     public JDialog winDialog() {
@@ -519,8 +544,8 @@ public class Game /*implements ActionListener*/ {
 
         mainDialog.add(mainPanel);
 
-        clearBet();
         setWalletAmount(true);
+        clearBet();
 
         return mainDialog;
     }
@@ -540,13 +565,19 @@ public class Game /*implements ActionListener*/ {
             mainDialog.dispose();
             betPanel.removeAll();
             dealPanel.removeAll();
-            jfrm.dispose();
-            try {
-                Game newGame = new Game(deck, walletAmount);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
+            if (walletAmount <= 0) {
+                card.show(mainPanel, "Game Over Panel");
+                mainPanel.revalidate();
+            }
+            else {
+                jfrm.dispose();
+                try {
+                    Game newGame = new Game(deck, walletAmount);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -570,6 +601,155 @@ public class Game /*implements ActionListener*/ {
         clearBet();
 
         return mainDialog;
+    }
+
+    public JPanel goodEnding() throws IOException {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+        JLabel victoryText = new JLabel();
+        Image victoryImage;
+        ImageIcon victoryIcon = new ImageIcon();
+        JLabel victoryImageLabel = new JLabel();
+        if (walletAmount >= 1000000) {
+            victoryText.setText("On top of the world! Nice going, big shot!");
+            victoryImage = ImageIO.read(new File("Ending Images/scrooge.jpg"));
+        }
+        else if (walletAmount >= 100000) {
+            victoryText.setText("Nice job, kid! You've earned yourself high-roller status!");
+            victoryImage = ImageIO.read(new File("Ending Images/mrKrabs.jpg"));
+        }
+        else if (walletAmount >= 10000) {
+            victoryText.setText("Now we're getting somewhere. Nice one, kid. Keep going.");
+            victoryImage = ImageIO.read(new File("Ending Images/oceansEleven.jpg"));
+        }
+        else if (walletAmount > 2500) {
+            victoryText.setText("A net positive for sure, but can we get any higher?");
+            victoryImage = ImageIO.read(new File("Ending Images/theOnePieceIsReal.jpg"));
+        }
+        else if (walletAmount == 2500) {
+            victoryText.setText("Well, at least 'ya didn't lose anything. Try again, kid.");
+            victoryImage = ImageIO.read(new File("Ending Images/letsGoGambling.jpg"));
+        }
+        else {
+            victoryText.setText("...shoulda kept going, kid.");
+            victoryImage = ImageIO.read(new File("Ending Images/facepalm.jpg"));
+        }
+        victoryIcon.setImage(victoryImage);
+        victoryImageLabel.setIcon(victoryIcon);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        JButton tryAgain = new JButton("Try again?");
+        JButton quit = new JButton("Quit");
+        tryAgain.addActionListener(e -> {
+            jfrm.dispose();
+            try {
+                Game trueNewGame = new Game(deck);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        quit.addActionListener(e -> {
+            jfrm.dispose();
+        });
+        buttonPanel.add(tryAgain);
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPanel.add(quit);
+
+        victoryText.setFont(new Font("Victory", Font.BOLD, 24));
+
+        victoryText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        victoryImageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(victoryText);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        mainPanel.add(victoryImageLabel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        mainPanel.add(buttonPanel);
+
+        return mainPanel;
+    }
+
+    public JPanel badEnding() throws IOException {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+        JLabel line1 = new JLabel("The House always wins...");
+        JLabel line2 = new JLabel("...but you could've won so much more.");
+
+        Image cashMoneyImage = ImageIO.read(new File("Ending Images/spongebobCash.png"));
+        Image loserImage = ImageIO.read(new File("Ending Images/neverquit.jpg"));
+        ImageIcon cashMoneyIcon = new ImageIcon(cashMoneyImage);
+        ImageIcon loserIcon = new ImageIcon(loserImage);
+        JLabel imageLabel = new JLabel();
+
+        JPanel subPanel = new JPanel();
+        subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.X_AXIS));
+        JButton tryAgain = new JButton("Try again?");
+        JButton quit = new JButton("Quit");
+
+        line1.setFont(new Font("Line 1", Font.BOLD, 36));
+        line2.setFont(new Font("Line 2", Font.BOLD, 24));
+
+        line1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        line2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tryAgain.setAlignmentX(Component.CENTER_ALIGNMENT);
+        quit.setAlignmentX(Component.CENTER_ALIGNMENT);
+        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        tryAgain.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                imageLabel.setIcon(cashMoneyIcon);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                imageLabel.setIcon(null);
+            }
+        });
+        quit.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                imageLabel.setIcon(loserIcon);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                imageLabel.setIcon(null);
+            }
+        });
+        tryAgain.addActionListener(e -> {
+            jfrm.dispose();
+            try {
+                Game trueNewGame = new Game(deck);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        quit.addActionListener(e -> {
+            jfrm.dispose();
+        });
+
+        subPanel.add(tryAgain);
+        subPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        subPanel.add(quit);
+
+        mainPanel.add(line1);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 100)));
+        mainPanel.add(line2);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 100)));
+        mainPanel.add(subPanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainPanel.add(imageLabel);
+
+        return mainPanel;
     }
 
     public void updateTotals() {

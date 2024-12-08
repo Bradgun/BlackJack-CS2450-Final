@@ -1,7 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Main {
@@ -40,13 +43,19 @@ public class Main {
         JLabel subheader = new JLabel("Group 9 -- High Rollers");
         JLabel title = new JLabel("Mack's Sidetrack Blackjack");
         JButton newGame = new JButton("New Game");
-        JButton tutorial = new JButton("Tutorial");
-        tutorialPanel = tutorialPanel();
+        JButton tutorial = new JButton("Manual");
+
+        JPanel subPanel = new JPanel();
+        subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.X_AXIS));
+        subPanel.add(newGame);
+        subPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        subPanel.add(tutorial);
 
         header.setAlignmentX(Component.CENTER_ALIGNMENT);
         subheader.setAlignmentX(Component.CENTER_ALIGNMENT);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
         newGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tutorial.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         header.setFont(new Font("Header", Font.PLAIN, 24));
         subheader.setFont(new Font("Subheader", Font.PLAIN, 18));
@@ -58,7 +67,7 @@ public class Main {
         startPanel.add(Box.createRigidArea(new Dimension(0, 100)));
         startPanel.add(title);
         startPanel.add(Box.createRigidArea(new Dimension(0, 100)));
-        startPanel.add(newGame);
+        startPanel.add(subPanel);
 
         newGame.addActionListener(ae -> {
             jfrm.dispatchEvent(new WindowEvent(jfrm, WindowEvent.WINDOW_CLOSING));
@@ -74,7 +83,11 @@ public class Main {
             }
         });
         tutorial.addActionListener(e -> {
-
+            try {
+                openManual();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         jfrm.add(startPanel);
@@ -102,7 +115,7 @@ public class Main {
         Card of4 = new Card("4", suit, 4, (relativeDirectory + "/4Of" + suit + ".png"));
         Card of3 = new Card("3", suit, 3, (relativeDirectory + "/3Of" + suit + ".png"));
         Card of2 = new Card("2", suit, 2, (relativeDirectory + "/2Of" + suit + ".png"));
-        Card ace = new Card("Ace", suit, 11, (relativeDirectory + "/aceOf" + suit + ".png"));
+        Card ace = new Card("Ace", suit, 1, (relativeDirectory + "/aceOf" + suit + ".png"));
 
         deck.add(king);
         deck.add(queen);
@@ -128,11 +141,21 @@ public class Main {
         printSleepMessage("No criminal history detected. Access granted.", 1000);
     }
 
-    public static JPanel tutorialPanel() {
-        JPanel mainPanel = new JPanel();
-        CardLayout cardLayout = new CardLayout();
-        mainPanel.setLayout(cardLayout);
+    public static void openManual() throws IOException {
+        JFrame manualFrame = new JFrame("Manual");
+        manualFrame.setLocationRelativeTo(null);
+        manualFrame.setSize(960, 720);
+        manualFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        return mainPanel;
+        JEditorPane manualPane = new JEditorPane();
+//        manualPane.setContentType("text/html");
+        manualPane.setEditable(false);
+
+        File manualFile = new File("HTML Files/Danjels' Blackjack Manual (2024 Edition) (HTML Markup)/DanjelsBlackjackManual_2024Edition_HTMLMarku.html");
+        manualPane.setPage(manualFile.toURI().toURL());
+
+        JScrollPane scrollPane = new JScrollPane(manualPane);
+        manualFrame.add(scrollPane);
+        manualFrame.setVisible(true);
     }
 }
