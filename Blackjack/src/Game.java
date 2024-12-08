@@ -250,9 +250,9 @@ public class Game /*implements ActionListener*/ {
                 L.setVisible(true);
             }
             else {
-                JOptionPane.showMessageDialog(jfrm, "Push! Your bet has been returned.");
-                setWalletAmount(true);
-                clearBet();
+                JDialog P = pushDialog();
+                P.setLocationRelativeTo(jfrm);
+                P.setVisible(true);
             }
         });
         doubleDownButton.addActionListener(e -> {
@@ -313,9 +313,9 @@ public class Game /*implements ActionListener*/ {
                         L.setVisible(true);
                     }
                     else {
-                        JOptionPane.showMessageDialog(jfrm, "Push! Your bet has been returned.");
-                        setWalletAmount(true);
-                        clearBet();
+                        JDialog P = pushDialog();
+                        P.setLocationRelativeTo(jfrm);
+                        P.setVisible(true);
                     }
                 }
             }
@@ -598,6 +598,54 @@ public class Game /*implements ActionListener*/ {
         mainDialog.add(mainDialogPanel);
 
         setWalletAmount(false);
+        clearBet();
+
+        return mainDialog;
+    }
+
+    public JDialog pushDialog() {
+        JDialog mainDialog = new JDialog(jfrm, true);
+        mainDialog.setTitle("Push!");
+        mainDialog.setLocationRelativeTo(null);
+
+        mainDialog.setSize(400, 300);
+        JPanel mainDialogPanel = new JPanel();
+        mainDialogPanel.setLayout(new BoxLayout(mainDialogPanel, BoxLayout.Y_AXIS));
+
+        JLabel pushText = new JLabel("Push!");
+        JLabel pushAmount = new JLabel("Returned $" + betAmount);
+        JButton confirmButton = new JButton("Okay.");
+        confirmButton.addActionListener(e -> {
+            mainDialog.dispose();
+            betPanel.removeAll();
+            dealPanel.removeAll();
+            jfrm.dispose();
+            try {
+                Game newGame = new Game(deck, walletAmount);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        pushText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        pushAmount.setAlignmentX(Component.CENTER_ALIGNMENT);
+        confirmButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        pushText.setFont(new Font("PushText", Font.BOLD, 24));
+        pushAmount.setFont(new Font("PushAmount", Font.BOLD, 24));
+        pushAmount.setForeground(Color.GRAY);
+
+        mainDialogPanel.add(pushText);
+        mainDialogPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainDialogPanel.add(pushAmount);
+        mainDialogPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        mainDialogPanel.add(confirmButton);
+
+        mainDialog.add(mainDialogPanel);
+
+        walletAmount = walletAmount + betAmount;
         clearBet();
 
         return mainDialog;
