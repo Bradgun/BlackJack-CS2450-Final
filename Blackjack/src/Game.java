@@ -79,7 +79,28 @@ public class Game /*implements ActionListener*/ {
         mainPanel.add(gameOverPanel, "Game Over Panel");
         card.show(mainPanel, "Bet Panel");
 
-        jfrm.add(mainPanel);
+        Image backgroundImage = ImageIO.read(new File("Misc Images/casinoTableGradient.png"));
+        ImageIcon backgroundIcon = new ImageIcon(backgroundImage);
+        JLabel backgroundLabel = new JLabel(backgroundIcon);
+
+        mainPanel.setOpaque(false);
+        betPanel.setOpaque(false);
+        dealPanel.setOpaque(false);
+        gameOverPanel.setOpaque(false);
+
+        JPanel backgroundPanel = new JPanel();
+        backgroundPanel.add(backgroundLabel);
+
+        mainPanel.setBounds(0, -10, 960, 720);
+        backgroundPanel.setBounds(0, -10, 960, 720);
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
+        layeredPane.add(mainPanel, JLayeredPane.PALETTE_LAYER);
+        layeredPane.repaint();
+        layeredPane.revalidate();
+
+        jfrm.getContentPane().add(layeredPane);
         jfrm.setVisible(true);
     }
 
@@ -108,7 +129,28 @@ public class Game /*implements ActionListener*/ {
         mainPanel.add(gameOverPanel, "Game Over Panel");
         card.show(mainPanel, "Bet Panel");
 
-        jfrm.add(mainPanel);
+        Image backgroundImage = ImageIO.read(new File("Misc Images/casinoTableGradient.png"));
+        ImageIcon backgroundIcon = new ImageIcon(backgroundImage);
+        JLabel backgroundLabel = new JLabel(backgroundIcon);
+
+        mainPanel.setOpaque(false);
+        betPanel.setOpaque(false);
+        dealPanel.setOpaque(false);
+        gameOverPanel.setOpaque(false);
+
+        JPanel backgroundPanel = new JPanel();
+        backgroundPanel.add(backgroundLabel);
+
+        mainPanel.setBounds(0, -10, 960, 720);
+        backgroundPanel.setBounds(0, -10, 960, 720);
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
+        layeredPane.add(mainPanel, JLayeredPane.PALETTE_LAYER);
+        layeredPane.repaint();
+        layeredPane.revalidate();
+
+        jfrm.getContentPane().add(layeredPane);
         jfrm.setVisible(true);
     }
 
@@ -118,11 +160,14 @@ public class Game /*implements ActionListener*/ {
 
         JPanel dealScreen = new JPanel();
         dealScreen.setLayout(new BoxLayout(dealScreen, BoxLayout.Y_AXIS));
+        dealScreen.setOpaque(false);
 
         JPanel header = new JPanel();   //Orients header content to top-left
         header.setLayout(new BorderLayout());
+        header.setOpaque(false);
         JPanel headerMini = new JPanel();
         headerMini.setLayout(new BoxLayout(headerMini, BoxLayout.Y_AXIS));
+        headerMini.setOpaque(false);
 
         walletTextDealPanel.setFont(new Font("Wallet", Font.BOLD, 18));
         betText.setFont(new Font("Bet", Font.BOLD, 18));
@@ -137,6 +182,7 @@ public class Game /*implements ActionListener*/ {
 
         JPanel dealerHand = new JPanel();
         dealerHand.setLayout(new BoxLayout(dealerHand, BoxLayout.X_AXIS));
+        dealerHand.setOpaque(false);
         ArrayList<Card> dealerCards = new ArrayList<>();
         ArrayList<JLabel> dealerCardsVisual = new ArrayList<>();
         int randomIndex = random.nextInt(deck.size() - 1);  // Cannot draw last card in deck, which is the back of a card
@@ -154,6 +200,7 @@ public class Game /*implements ActionListener*/ {
 
         JPanel buttonRow = new JPanel();
         buttonRow.setLayout(new BoxLayout(buttonRow, BoxLayout.X_AXIS));
+        buttonRow.setOpaque(false);
 
         hitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         standButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -165,6 +212,7 @@ public class Game /*implements ActionListener*/ {
         buttonRow.add(standButton);
 
         JPanel playerHand = new JPanel();
+        playerHand.setOpaque(false);
         ArrayList<Card> playerCards = new ArrayList<>();
         ArrayList<JLabel> playerCardsVisual = new ArrayList<>();
         playerHand.setLayout(new BoxLayout(playerHand, BoxLayout.X_AXIS));
@@ -343,13 +391,14 @@ public class Game /*implements ActionListener*/ {
         JPanel header = new JPanel();
 //        header.setBackground(casinoGreen);
         header.setLayout(new FlowLayout());
+        header.setOpaque(false);
         walletText.setText("Wallet: $" + walletAmount);
         walletText.setFont(new Font("Wallet", Font.BOLD, 36));
         header.add(walletText);
 
         JPanel betValueLine = new JPanel();
-//        betValueLine.setBackground(casinoGreen);
         betValueLine.setLayout(new BoxLayout(betValueLine, BoxLayout.Y_AXIS));
+        betValueLine.setOpaque(false);
         JLabel totalBetText = new JLabel("Total Bet:");
         betAmountText = new JLabel("$" + betAmount);
         totalBetText.setFont(new Font("Total Bet", Font.PLAIN, 36));
@@ -362,10 +411,12 @@ public class Game /*implements ActionListener*/ {
         JPanel chipsAndButtonsAvailable = new JPanel();
 //        chipsAndButtonsAvailable.setBackground(casinoGreen);
         chipsAndButtonsAvailable.setLayout(new BoxLayout(chipsAndButtonsAvailable, BoxLayout.X_AXIS));
+        chipsAndButtonsAvailable.setOpaque(false);
 
         for (int i = 0; i < chips.size(); i++) {
             JPanel chipAndButtons = new JPanel();
             chipAndButtons.setLayout(new BoxLayout(chipAndButtons, BoxLayout.Y_AXIS));
+            chipAndButtons.setOpaque(false);
 
             JButton add = chips.get(i).getAddButton();
             JButton remove = chips.get(i).getRemoveButton();
@@ -414,6 +465,7 @@ public class Game /*implements ActionListener*/ {
         JPanel miscBets = new JPanel();
 //        miscBets.setBackground(casinoGreen);
         miscBets.setLayout(new BoxLayout(miscBets, BoxLayout.X_AXIS));
+        miscBets.setOpaque(false);
         JButton allIn = new JButton("All In!");
         JButton clearBet = new JButton("Clear Bet");
 //        allIn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -459,8 +511,15 @@ public class Game /*implements ActionListener*/ {
 
         JPanel cashOutPanel = new JPanel();
         cashOutPanel.setLayout(new BorderLayout());
+        cashOutPanel.setOpaque(false);
+
+        JPanel cashOutSubPanel = new JPanel();
+        cashOutSubPanel.setLayout(new BoxLayout(cashOutSubPanel, BoxLayout.X_AXIS));
+        cashOutSubPanel.setOpaque(false);
         JButton cashOutButton = new JButton("Cash out!");
-        cashOutPanel.add(cashOutButton, BorderLayout.EAST);
+        cashOutSubPanel.add(cashOutButton);
+        cashOutSubPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        cashOutPanel.add(cashOutSubPanel, BorderLayout.EAST);
 
         betScreen.add(Box.createRigidArea(new Dimension(0, 20)));
         JLabel errorNoBetText = new JLabel("You've gotta place some kind of wager, partner!");
@@ -469,6 +528,7 @@ public class Game /*implements ActionListener*/ {
         betScreen.add(errorNoBetText);
         betScreen.add(Box.createRigidArea(new Dimension(0, 30)));
         betScreen.add(cashOutPanel);
+        betScreen.add(Box.createRigidArea(new Dimension(0, 10)));
 
         playButton.addActionListener(e -> {
             if (betAmount == 0) {
@@ -654,6 +714,7 @@ public class Game /*implements ActionListener*/ {
     public JPanel goodEnding() throws IOException {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setOpaque(false);
 
         JLabel victoryText = new JLabel();
         Image victoryImage;
@@ -688,6 +749,7 @@ public class Game /*implements ActionListener*/ {
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.setOpaque(false);
         JButton tryAgain = new JButton("Try again?");
         JButton quit = new JButton("Quit");
         tryAgain.addActionListener(e -> {
@@ -725,6 +787,7 @@ public class Game /*implements ActionListener*/ {
     public JPanel badEnding() throws IOException {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setOpaque(false);
 
         JLabel line1 = new JLabel("The House always wins...");
         JLabel line2 = new JLabel("...but you could've won so much more.");
@@ -737,6 +800,7 @@ public class Game /*implements ActionListener*/ {
 
         JPanel subPanel = new JPanel();
         subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.X_AXIS));
+        subPanel.setOpaque(false);
         JButton tryAgain = new JButton("Try again?");
         JButton quit = new JButton("Quit");
 
@@ -789,6 +853,7 @@ public class Game /*implements ActionListener*/ {
         subPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         subPanel.add(quit);
 
+        mainPanel.add(Box.createRigidArea(new Dimension(0 , 20)));
         mainPanel.add(line1);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 100)));
         mainPanel.add(line2);
